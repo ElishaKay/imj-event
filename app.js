@@ -1,4 +1,5 @@
 //general dependencies
+require('dotenv').config();
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
@@ -12,7 +13,7 @@ var connection = mysql.createConnection({
     host: adminConfig.mysql.host,
     user: adminConfig.mysql.username,
     password: adminConfig.mysql.password,
-    database: process.env.DATABASE
+    database: adminConfig.mysql.database
 });
 
 connection.connect(function(err) {
