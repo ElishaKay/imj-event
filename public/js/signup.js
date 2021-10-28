@@ -3,11 +3,16 @@ let submitBtn = document.querySelector('#submitFormBtn')
 if(submitBtn){
     submitBtn.addEventListener("click", function(){
         let formData = getFormData();
-        let postRequestStatus = postEmailData(formData);
-        document.querySelector(".modal-content").innerHTML = postRequestStatus;
+        postEmailData(formData);
+        document.querySelector(".modal-content").innerHTML = `
+            <img src='../img/processing.gif' />
+        `
       });
 }
 
+function checkEmailField(){
+
+}
 
 function getFormData(){
     let formData = {};
@@ -29,6 +34,9 @@ function postEmailData(formData){
       }).then(response => response.json())
         .then(data => {
             console.log(data)  
-            return data
+            document.querySelector(".modal-content").innerHTML = `
+                <h1>Thanks for Registering</h1>
+                <p>${data.message}</p>
+            `
         });   
 }
