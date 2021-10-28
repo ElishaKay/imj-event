@@ -3,6 +3,9 @@ var adminConfig = require('../config/adminconfig.js');
 var settingsConfig = require('../config/settingsconfig.js');
 var sg = require('sendgrid')(adminConfig.SENDGRID_API_KEY);
 
+const ActiveCampaign = require("activecampaign");
+const ac = new ActiveCampaign(process.env.ACTIVE_CAMPAIGN_HOST, process.env.ACTIVE_CAMPAIGN_KEY);
+
 module.exports = function(app, connection) {
 
 var ensureAuthenticated = require('../authentication/auth.js')(app);
@@ -15,10 +18,35 @@ var ensureAuthenticated = require('../authentication/auth.js')(app);
             res.json('Email address is not valid!');
         } else {
             var email = req.body.email;
-            var name = email.substring(0, email.lastIndexOf("@"));
+            var name = req.body.name;
+
             var domain = email.substring(email.lastIndexOf("@") +1);
             var hashCode = md5(name + domain);
             //send verification email
+
+            var contact_add = ac.api("contact/add", { name });
+
+            contact_add.then(function(result) {
+                console.log('succesfully added contact',result);
+
+                var eventdata = {
+                    tags: 'imj-event-signup',
+                    email
+                };
+
+                ac.api('contact/tag/add', eventdata).then(function(result) {
+                    console.log('success', result);
+                    return res.json({
+                        message: `A confirmation email has been sent to ${email}. You may now login.`
+                    });
+                }, function(err) {
+                    console.log('failure', err);
+                });     
+            }, function(err) {
+                    console.log('failure', err);
+            });
+
+
             function sendGrid(referredBy){
                 connection.query('INSERT INTO emails (emailaddress, referralcode, referredby) VALUES (?, ?, ?)', [req.body.email, hashCode, referredBy], function(err, rows, fields) {
                     if (err) {
@@ -52,6 +80,11 @@ var ensureAuthenticated = require('../authentication/auth.js')(app);
 
                         sg.API(request, function(error, response) {
                           // Handle the response here.
+                          if(error){
+                            console.log(error)
+                          } else {
+                            console.log(response)
+                          }                    
                         });
                         res.end();
                     }
