@@ -25,6 +25,12 @@ DROP TABLE IF EXISTS `emails`;
 CREATE TABLE `emails` (
   `idemails` int(11) NOT NULL AUTO_INCREMENT,
   `emailaddress` varchar(45) DEFAULT NULL,
+  `firstName` varchar(45) DEFAULT NULL,
+  `lastName` varchar(45) DEFAULT NULL,
+  `address` varchar(45) DEFAULT NULL,
+  `country` varchar(45) DEFAULT NULL,
+  `phoneNumber` varchar(45) DEFAULT NULL,
+
   `referrals` int(11) DEFAULT '0',
   `datetime` datetime DEFAULT CURRENT_TIMESTAMP,
   `referralcode` varchar(45) DEFAULT NULL,

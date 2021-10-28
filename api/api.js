@@ -8,100 +8,49 @@ const ac = new ActiveCampaign(process.env.ACTIVE_CAMPAIGN_HOST, process.env.ACTI
 
 module.exports = function(app, connection) {
 
-var ensureAuthenticated = require('../authentication/auth.js')(app);
+    var ensureAuthenticated = require('../authentication/auth.js')(app);
 
-    //add email address to database, create a verification code, and send verification link to email address
-    app.post('/api/v1/newemail', function(req, res) {
-        // regex on both client and server side for protection in case JS is augmented
-        var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        if (!re.test(req.body.email)) {
-            res.json('Email address is not valid!');
-        } else {
-            var email = req.body.email;
-            var name = req.body.name;
+    const saveContactInDB = (contactData) => {
+        let {firstName, lastName, address, country, phoneNumber, email} = contactData;
 
-            var domain = email.substring(email.lastIndexOf("@") +1);
-            var hashCode = md5(name + domain);
-            //send verification email
-
-            var contact_add = ac.api("contact/add", { name });
-
-            contact_add.then(function(result) {
-                console.log('succesfully added contact',result);
-
-                var eventdata = {
-                    tags: 'imj-event-signup',
-                    email
-                };
-
-                ac.api('contact/tag/add', eventdata).then(function(result) {
-                    console.log('success', result);
-                    return res.json({
-                        message: `A confirmation email has been sent to ${email}. You may now login.`
-                    });
-                }, function(err) {
-                    console.log('failure', err);
-                });     
-            }, function(err) {
-                    console.log('failure', err);
-            });
-
-
-            function sendGrid(referredBy){
-                connection.query('INSERT INTO emails (emailaddress, referralcode, referredby) VALUES (?, ?, ?)', [req.body.email, hashCode, referredBy], function(err, rows, fields) {
-                    if (err) {
-                        res.json(401);
-                    } else {
-                        //send verification email
-                        var helper = require('sendgrid').mail;
-                        var from = new helper.Email(settingsConfig.senderAddress);
-                        var to = new helper.Email(req.body.email);
-                        var subject = settingsConfig.subjectLine;
-                        var emailTemplate = require('../config/email_template.js')(
-                            req.body.domain,
-                            hashCode, 
-                            settingsConfig.brandColor, 
-                            settingsConfig.emailImage, 
-                            settingsConfig.preHeader, 
-                            settingsConfig.senderAddress,
-                            settingsConfig.emailHeader,
-                            settingsConfig.footerName,
-                            settingsConfig.footerLocation
-                            );
-                        var content = new helper.Content(
-                                "text/html", emailTemplate);
-                        var mail = new helper.Mail(from, subject, to, content);
-
-                        var request = sg.emptyRequest({
-                          method: 'POST',
-                          path: '/v3/mail/send',
-                          body: mail.toJSON(),
-                        });
-
-                        sg.API(request, function(error, response) {
-                          // Handle the response here.
-                          if(error){
-                            console.log(error)
-                          } else {
-                            console.log(response)
-                          }                    
-                        });
-                        res.end();
-                    }
-                });
-            }
-            //pass referral code to select the user who gets a referral point
-            if(req.body.hashCode !== undefined){
-                connection.query('SELECT emailaddress FROM emails WHERE `referralcode`=(?)', [req.body.hashCode], function(err, rows, fields) {
-                    if(err) throw err;
-                    var data = rows[0].emailaddress;
-                    sendGrid(data);
-                });
-            //if no referral code used
+        connection.query('INSERT INTO emails (firstName, lastName, address, country, phoneNumber, emailaddress) VALUES (?, ?, ?, ?, ?, ?)', [firstName, lastName, address, country, phoneNumber, email], function(err, rows, fields) {
+            if (err) {
+                console.log('sql error when trying to save contact', err)
             } else {
-                sendGrid("none");
+                console.log('contact saved succesfully')
             }
+        })
+    }
+
+    app.post('/api/v1/newemail', function(req, res) {
+        saveContactInDB(req.body);
+        let name = '';
+        let {firstName, lastName, address, country, phoneNumber, email} = req.body;
+        if(firstName && lastName){
+            name = firstName + ' ' + lastName
         }
+
+        var contact_add = ac.api("contact/add", { name, firstName, lastName, address, country, phoneNumber, email });
+
+        contact_add.then(function(result) {
+            console.log('succesfully added contact',result);
+
+            var eventdata = {
+                tags: 'imj-event-signup',
+                email
+            };
+
+            ac.api('contact/tag/add', eventdata).then(function(result) {
+                console.log('success', result);
+                return res.json({
+                    message: `A confirmation email has been sent to ${email}.`
+                });
+            }, function(err) {
+                console.log('failure', err);
+            });     
+        }, function(err) {
+                console.log('failure', err);
+        });
     });
 
     //checks if referral code is valid

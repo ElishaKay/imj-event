@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/ElishaKay/imj-event#readme",
   "dependencies": {
+    "activecampaign": "^1.2.5",
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.5",
     "dotenv": "^10.0.0",

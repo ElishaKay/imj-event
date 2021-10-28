@@ -25,10 +25,10 @@ function postEmailData(formData){
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({firstName, lastName, email, address, country})
+        body: JSON.stringify(formData)
       }).then(response => response.json())
-      .then(data => {
-        console.log(data)  
-        return data
-      });   
+        .then(data => {
+            console.log(data)  
+            return data
+        });   
 }
