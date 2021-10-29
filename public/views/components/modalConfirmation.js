@@ -17,11 +17,11 @@ function showConfirmationModal(user){
         </thead>
         <tbody>
             <tr>
-                <th scope="row">firstName</th>
+                <th scope="row">First Name</th>
                 <td>${user.firstName}</td>
             </tr>
             <tr>
-                <th scope="row">lastName</th>
+                <th scope="row">Last Name</th>
                 <td>${user.lastName}</td>
             </tr>
             <tr>

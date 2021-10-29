@@ -61,3 +61,11 @@ select.form-control:focus {
 .modal-footer button:hover {
     background:#ffb866;
 }
+
+.modal-body th {
+    color:#792b67;
+}
+
+#exampleModal { 
+    cursor: none; 
+}
