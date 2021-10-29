@@ -7,11 +7,7 @@ document.addEventListener('userRegistered', e => {
 function printRegistrationReceipt(){
     var prtContent = document.querySelector(".registration-receipt");
     var WinPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
-
-    const regex = /X/i;
-    WinPrint.document.write(prtContent.innerHTML.replace(regex, ''));
-    WinPrint.document.close();
-    WinPrint.focus();
+    WinPrint.document.write(prtContent.innerHTML);
     WinPrint.print();
 }
 
@@ -56,6 +52,12 @@ function showConfirmationModal(user){
                 </tr>
             </tbody>
         </table>
+
+        <style>
+            #CWSE-overlay-primary {
+                display: none;
+            }
+        </style>
     </div>
 
     <div class="modal-footer">
