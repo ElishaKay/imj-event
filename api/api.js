@@ -41,6 +41,7 @@ module.exports = function(app, connection) {
             ac.api('contact/tag/add', eventdata).then(function(result) {
                 console.log('success', result);
                 return res.json({
+                    user: req.body,
                     message: `A confirmation email has been sent to ${email}.`
                 });
             }, function(err) {

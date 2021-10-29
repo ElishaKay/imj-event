@@ -6,7 +6,7 @@ if(submitBtn){
 
         if(formData['email']!=''){
             postEmailData(formData);
-            document.querySelector(".modal-content").innerHTML = `
+            document.querySelector(".modal-body").innerHTML = `
                 <img src='../img/processing.gif' />
             `
         } else {
@@ -18,8 +18,6 @@ if(submitBtn){
                 </div>
             `
         }
-        
-        
       });
 }
 
@@ -42,10 +40,9 @@ function postEmailData(formData){
         body: JSON.stringify(formData)
       }).then(response => response.json())
         .then(data => {
-            console.log(data)  
-            document.querySelector(".modal-content").innerHTML = `
-                <h1>Thanks for Registering</h1>
-                <p>${data.message}</p>
-            `
+            console.log('response from server: ',data)  
+            document.dispatchEvent(new CustomEvent('userRegistered', {
+                detail: data
+            }));
         });   
 }
