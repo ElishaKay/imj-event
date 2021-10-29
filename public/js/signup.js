@@ -3,15 +3,24 @@ let submitBtn = document.querySelector('#submitFormBtn')
 if(submitBtn){
     submitBtn.addEventListener("click", function(){
         let formData = getFormData();
-        postEmailData(formData);
-        document.querySelector(".modal-content").innerHTML = `
-            <img src='../img/processing.gif' />
-        `
+
+        if(formData['email']!=''){
+            postEmailData(formData);
+            document.querySelector(".modal-content").innerHTML = `
+                <img src='../img/processing.gif' />
+            `
+        } else {
+            document.querySelector('.emailInputField').innerHTML = `
+                <div class="form-group has-error">
+                    <label class="pull-left">Email</label>
+                    <input type="text" name="email" class="form-control" id="email" value="" required>
+                    <span class="help-block">Email is required</span>
+                </div>
+            `
+        }
+        
+        
       });
-}
-
-function checkEmailField(){
-
 }
 
 function getFormData(){
