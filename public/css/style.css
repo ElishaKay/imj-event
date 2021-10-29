@@ -67,5 +67,5 @@ select.form-control:focus {
 }
 
 #exampleModal { 
-    cursor: none; 
+    caret-color: transparent;
 }
